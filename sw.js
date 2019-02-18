@@ -41,10 +41,13 @@ self.addEventListener("fetch", event => {
                 console.log('Could not find ', event.request, ' in cache, will fetch it');
                 return fetch(event.request)
                     .then(response => {
-                        const cloneResponse = response.clone();
+                        if(!response || response.status !== 200 || response.type !== 'basic') {
+                            return response;
+                        }
+                        var cloneResponse = response.clone();
                         caches.open(cacheId).then(cache => {
                             cache.put(event.request, cloneResponse);
-                        })
+                        });
                         return response;
                     })
                     .catch(error => {
